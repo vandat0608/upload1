@@ -1,0 +1,66 @@
+/* client/src/App.css */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Màu nền nhẹ nhàng cho toàn bộ trang */
+  padding: 20px;
+}
+
+.content-frame {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); /* Shadow nhẹ nhàng */
+  width: 100%;
+  max-width: 600px; /* Chiều rộng tối đa cho khung */
+  text-align: center;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+input[type="file"],
+input[type="text"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 15px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.status {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.status.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}

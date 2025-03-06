@@ -1,0 +1,14 @@
+# Bỏ qua thư mục node_modules trong client
+client/node_modules/
+
+# Bỏ qua thư mục venv trong server (nếu có)
+server/venv/
+
+# Bỏ qua file cấu hình môi trường
+server/.env
+
+# Bỏ qua file cache của Python
+**/__pycache__/
+server/credentials.json
+server/token.json
+
