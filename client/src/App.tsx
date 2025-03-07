@@ -55,7 +55,7 @@ function App() {
     });
     try {
       const networkResponse = await axios.post(
-        "https://upload1-xjte.onrender.com/check-network"
+        "https://upload1-2h85.onrender.com/check-network"
         // "http://127.0.0.1:5000/check-network"
       );
       if (networkResponse.data.error) {
@@ -98,7 +98,7 @@ function App() {
 
     try {
       const response = await axios.post<ProcessResponse>(
-        "https://upload1-xjte.onrender.com/process",
+        "https://upload1-2h85.onrender.com/process",
         // "http://127.0.0.1:5000/process",
         formData,
         {
