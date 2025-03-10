@@ -10,6 +10,7 @@ from openpyxl.utils import get_column_letter
 from dotenv import load_dotenv  # Thêm import để đọc biến môi trường
 
 import logging
+import shutil
 
 # Load biến môi trường từ file .env
 load_dotenv()
@@ -55,7 +56,6 @@ def process_files():
     if not spreadsheet_id:
         return jsonify({"status": "Lỗi: Không thể trích xuất spreadsheet_id từ URL!", "error": True})
 
-    # Chỉ truyền spreadsheet_id, vì CREDENTIALS_FILE là biến toàn cục trong uploadGgSheet.py
     service = connect_to_google_sheets(spreadsheet_id)
     if not service:
         return jsonify({"status": "Lỗi: Không thể kết nối Google Sheets!", "error": True})
@@ -75,6 +75,7 @@ def process_files():
         logging.debug(f"Saving file to: {file_path}")
         try:
             file.save(file_path)
+            logging.debug(f"File saved to temp directory: {file_path}")
         except Exception as e:
             logging.error(f"Error saving file {file.filename} to {file_path}: {e}")
             continue
@@ -83,10 +84,23 @@ def process_files():
             logging.warning(f"Bỏ qua file '{file_path}' do không tồn tại sau khi lưu")
             continue
 
+        # Gọi copy_dates_and_add_columns trước khi validate
+        logging.debug(f"Calling copy_dates_and_add_columns for {file_path}")
+        if not copy_dates_and_add_columns(file_path):
+            logging.error(f"Failed to copy dates and add columns for {file_path}")
+            continue
+
+        # Đọc lại file để xác nhận thay đổi
+        workbook_check = openpyxl.load_workbook(file_path)
+        sheet_check = workbook_check.active
+        header_row_check = [sheet_check.cell(row=1, column=col).value for col in range(1, sheet_check.max_column + 1)]
+        logging.debug(f"Header row after copy_dates_and_add_columns: {header_row_check}")
+
+        # Kiểm tra dữ liệu sau khi đã thêm cột "Phòng"
         is_valid, error_message = validate_excel_data(file_path)
         if not is_valid:
             logging.error(f"Lỗi với file '{file.filename}': {error_message}")
-            continue  # Bỏ qua file lỗi, tiếp tục với file tiếp theo
+            continue
 
         rows_added = process_single_file(file_path, spreadsheet_id, sheet_name, faculty_name, service)
         if rows_added is not False:
@@ -95,7 +109,6 @@ def process_files():
         else:
             logging.error(f"Bỏ qua file '{file.filename}' do lỗi xử lý")
 
-    import shutil
     shutil.rmtree(temp_dir)
 
     status = f"Hoàn tất toàn bộ quá trình: Tổng số file được thêm thành công: {successful_files}, Tổng số hàng được thêm: {total_rows_added}"
@@ -115,10 +128,20 @@ def validate_excel_data(file_path):
         
         if sheet.max_column < 7:
             return False, f"Thiếu dữ liệu từ cột 7 trở đi (cột G)."
-        for col in range(7, sheet.max_column + 1, 4):
+        
+        # Log nội dung hàng 1 để debug
+        header_row = [sheet.cell(row=1, column=col).value for col in range(1, sheet.max_column + 1)]
+        logging.debug(f"Header row of {file_path}: {header_row}")
+
+        # Kiểm tra dữ liệu ngày từ cột 7 trở đi
+        has_date = False
+        for col in range(7, sheet.max_column + 1, 5):
             date_value = sheet.cell(row=1, column=col).value
-            if not isinstance(date_value, str) or '/' not in date_value:
-                return False, f"Dữ liệu ngày ở hàng 1, cột {get_column_letter(col)} không đúng định dạng (phải chứa '/')."
+            if isinstance(date_value, str) and '/' in date_value:
+                has_date = True
+                break
+        if not has_date:
+            return False, "Không tìm thấy dữ liệu ngày hợp lệ từ cột 7 trở đi (phải chứa '/')."
         
         return True, ""
     except Exception as e:
@@ -140,7 +163,10 @@ def process_single_file(file_path, spreadsheet_id, sheet_name, faculty_name, ser
         rows_added = summary_sheet.max_row - 1  # Trừ hàng tiêu đề (bỏ header)
         
         # Gọi upload_to_google_sheets đã sửa trong uploadGgSheet.py
-        upload_to_google_sheets(file_path, spreadsheet_id, sheet_name, service)
+        if not upload_to_google_sheets(file_path, spreadsheet_id, sheet_name, service):
+            logging.error(f"Failed to upload {file_path} to Google Sheets")
+            return False
+        
         logging.debug(f"Successfully processed file {file_path}, added {rows_added} rows")
         return rows_added
     except Exception as e:
