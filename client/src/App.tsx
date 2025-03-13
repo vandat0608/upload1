@@ -92,6 +92,7 @@ function App() {
     });
     const formData = new FormData();
     files.forEach((file) => formData.append("files", file));
+
     formData.append("googleSheetUrl", googleSheetUrl);
     formData.append("sheetName", sheetName);
     formData.append("faculty", faculty);
@@ -186,6 +187,7 @@ function App() {
             <option value="Khoa Ngoại Ngữ">Khoa Ngoại Ngữ</option>
             <option value="Khoa học cơ bản">Khoa học cơ bản</option>
           </select>
+          a
         </div>
 
         <button onClick={runProcess}>Thực Thi</button>
