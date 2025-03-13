@@ -13,8 +13,11 @@ interface ProcessResponse {
 
 function App() {
   const [files, setFiles] = useState<File[]>([]);
-  const [googleSheetUrl, setGoogleSheetUrl] = useState<string>("");
-  const [sheetName, setSheetName] = useState<string>("");
+  const [googleSheetUrl, setGoogleSheetUrl] = useState<string>(
+    "https://docs.google.com/spreadsheets/d/16Szu3vkzgnfPbTi6toRw_PFugb39O90fMsSoeDPjpFc/edit?gid=0#gid=0s"
+    // "https://docs.google.com/spreadsheets/d/15vKVTQrvMeShDzFfcUoWFWv85CfBEqe9QT8XtWF3aFc/edit?gid=0#gid=0"
+  );
+  const [sheetName, setSheetName] = useState<string>("Bao_cao");
   const [faculty, setFaculty] = useState<string>("");
   const [status, setStatus] = useState<{
     message: string;
@@ -148,8 +151,9 @@ function App() {
           />
         </div>
 
-        <div className="input-group">
+        <div className="input-group" hidden>
           <label>URL Google Sheet:</label>
+
           <input
             type="text"
             value={googleSheetUrl}
@@ -158,7 +162,7 @@ function App() {
           />
         </div>
 
-        <div className="input-group">
+        <div className="input-group" hidden>
           <label>Tên Sheet:</label>
           <input
             type="text"
@@ -187,7 +191,6 @@ function App() {
             <option value="Khoa Ngoại Ngữ">Khoa Ngoại Ngữ</option>
             <option value="Khoa học cơ bản">Khoa học cơ bản</option>
           </select>
-          a
         </div>
 
         <button onClick={runProcess}>Thực Thi</button>
